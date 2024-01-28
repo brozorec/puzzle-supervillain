@@ -5,7 +5,10 @@ use ark_ec::{
     pairing::Pairing,
     AffineRepr, CurveGroup,
 };
-use ark_ff::{field_hashers::DefaultFieldHasher, BigInt};
+use ark_ff::{
+    field_hashers::DefaultFieldHasher,
+    BigInt, Field
+};
 
 use ark_serialize::{CanonicalDeserialize, Read};
 
@@ -23,7 +26,6 @@ fn derive_point_for_pok(i: usize) -> G2Affine {
     G2Affine::rand(rng).mul(Fr::from(i as u64 + 1)).into()
 }
 
-#[allow(dead_code)]
 fn pok_prove(sk: Fr, i: usize) -> G2Affine {
     derive_point_for_pok(i).mul(sk).into()
 }
@@ -45,7 +47,6 @@ fn hasher() -> MapToCurveBasedHasher<G2Projective, DefaultFieldHasher<Sha256, 12
     wb_to_curve_hasher
 }
 
-#[allow(dead_code)]
 fn bls_sign(sk: Fr, msg: &[u8]) -> G2Affine {
     hasher().hash(msg).unwrap().mul(sk).into_affine()
 }
@@ -76,37 +77,28 @@ fn main() {
         .enumerate()
         .for_each(|(i, (pk, proof))| pok_verify(*pk, i, *proof));
 
-    /*public_keys*/
-    /*.iter()*/
-    /*.for_each(|(pk, _)| println!("{}", *pk));*/
-
     let new_key_index = public_keys.len();
     let message = b"brozorec";
 
     /* Enter solution here */
 
-    /*let secret = Fr::from(BigInt!("52435875175126190479447740508185965837690552500527637822603658699938581184513"));*/
-    /*let new_key = G1Affine::zero();*/
     let secret = Fr::from(BigInt!("123"));
     let my_key = G1Affine::generator().mul(secret).into_affine();
-    /*println!("{}", my_key);*/
     let new_key = public_keys
         .iter()
         .fold(G1Projective::from(my_key), |acc, (key, _)| acc + key.neg())
         .into_affine();
 
-    /*let new_proof = G2Affine::zero();*/
-    let new_proof = pok_prove(secret, new_key_index);
-    /*let fake_proof = public_keys*/
-        /*.iter()*/
-        /*.fold(G2Projective::from(my_proof), |acc, (_, proof)| acc + proof.neg())*/
-        /*.into_affine();*/
-    /*let new_proof = public_keys*/
-        /*.iter()*/
-        /*.fold(G2Projective::from(fake_proof), |acc, (_, proof)| acc + proof)*/
-        /*.into_affine();*/
+    let my_proof = pok_prove(secret, new_key_index);
+    let new_proof = public_keys
+        .iter()
+        .enumerate()
+        .fold(G2Projective::from(my_proof), |acc, (i, (_, proof))| {
+            let rhs = Fr::from(new_key_index as u128 + 1) * Fr::from(i as u128 + 1).inverse().unwrap();
+            acc + proof.mul(rhs).neg()
+        })
+        .into_affine();
 
-    /*let aggregate_signature = G2Affine::zero();*/
     let my_sig = bls_sign(secret, message);
     let fake_signature = public_keys
         .iter()
@@ -116,7 +108,6 @@ fn main() {
         .iter()
         .fold(G2Projective::from(fake_signature), |acc, (_, proof)| acc + proof)
         .into_affine();
-
 
     /* End of solution */
 
