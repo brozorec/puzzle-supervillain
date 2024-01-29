@@ -81,7 +81,6 @@ fn main() {
     let message = b"brozorec";
 
     /* Enter solution here */
-
     let n = new_key_index;
     let sk_n = Fr::from(BigInt!("123"));
     let pk_n = G1Affine::generator().mul(sk_n).into_affine();
