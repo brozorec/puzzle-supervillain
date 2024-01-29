@@ -32,7 +32,12 @@ let new_key = public_keys
 ```
 To support the rogue key, a corresponding PoK is needed. We can calculate it from the other participant's PoK's
 
-Let's recall that the $i$th signature is $s_i=A*sk_i*(i+1)$ where:
+Let's recall that the $i$ th signature is:
+
+$$s_i=A*sk_i*(i+1)$$
+
+Where:
+
 - $s_i$  is the $i$ th signature;
 - $sk_i$ is the $i$ th private key used to generate that signature;
 - $i$ is the index of the participant and;
