@@ -82,37 +82,32 @@ fn main() {
 
     /* Enter solution here */
 
-    let n = new_key_index;
-    let sk_n = Fr::from(BigInt!("123"));
-    let pk_n = G1Affine::generator().mul(sk_n).into_affine();
-    let pk_n_prime = public_keys
+    let secret = Fr::from(BigInt!("123"));
+    let my_key = G1Affine::generator().mul(secret).into_affine();
+    let new_key = public_keys
         .iter()
-        .fold(G1Projective::from(pk_n), |acc, (key, _)| acc + key.neg())
+        .fold(G1Projective::from(my_key), |acc, (key, _)| acc + key.neg())
         .into_affine();
 
-    let pok_n = pok_prove(sk_n, n);
-    let pok_n_prime = public_keys
+    let my_proof = pok_prove(secret, new_key_index);
+    let new_proof = public_keys
         .iter()
         .enumerate()
-        .fold(G2Projective::from(pok_n), |acc, (i, (_, proof))| {
-            let rhs = Fr::from(n as u128 + 1) * Fr::from(i as u128 + 1).inverse().unwrap();
+        .fold(G2Projective::from(my_proof), |acc, (i, (_, proof))| {
+            let rhs = Fr::from(new_key_index as u128 + 1) * Fr::from(i as u128 + 1).inverse().unwrap();
             acc + proof.mul(rhs).neg()
         })
         .into_affine();
 
-    let sig_n = bls_sign(sk_n, message);
-    let sig_n_prime = public_keys
+    let my_sig = bls_sign(secret, message);
+    let fake_signature = public_keys
         .iter()
-        .fold(G2Projective::from(sig_n), |acc, (_, proof)| acc + proof.neg())
+        .fold(G2Projective::from(my_sig), |acc, (_, proof)| acc + proof.neg())
         .into_affine();
-    let sig_agg_prime = public_keys
+    let aggregate_signature = public_keys
         .iter()
-        .fold(G2Projective::from(sig_n_prime), |acc, (_, proof)| acc + proof)
+        .fold(G2Projective::from(fake_signature), |acc, (_, proof)| acc + proof)
         .into_affine();
-
-    let new_key = pk_n_prime;
-    let new_proof = pok_n_prime;
-    let aggregate_signature = sig_agg_prime;
 
     /* End of solution */
 
