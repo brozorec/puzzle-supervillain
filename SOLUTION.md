@@ -1,6 +1,11 @@
 # Supervillain
+
 ## Problem Statement
-## Hints
+Bob has been designing a new optimized signature scheme for his L1 based on BLS signatures. Specifically, he wanted to be able to use the most efficient form of BLS signature aggregation, where you just add the signatures together rather than having to delinearize them. In order to do that, he designed a proof-of-possession scheme based on the B-KEA assumption he found in the the Sapling security analysis paper by Mary Maller [1]. Based the reasoning in the Power of Proofs-of-Possession paper [2], he concluded that his scheme would be secure. After he deployed the protocol, he found it was attacked and there was a malicious block entered the system, fooling all the light nodes...
+
+[1] https://github.com/zcash/sapling-security-analysis/blob/master/MaryMallerUpdated.pdf
+[2] https://rist.tech.cornell.edu/papers/pkreg.pdf
+
 ## Solution
 
 The puzzle is solved if two conditions are met:
