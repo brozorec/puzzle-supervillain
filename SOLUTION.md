@@ -33,15 +33,19 @@ let new_key = public_keys
 To support the rogue key, a corresponding PoK is needed. We can calculate it from the other participant's PoK's
 
 Let's recall that the $i$th signature is $s_i=A*sk_i*(i+1)$ where:
-- $s_i$  is the $i$th signature;
-- $sk_i$ is the $i$th private key used to generate that signature;
+- $s_i$  is the $i$ th signature;
+- $sk_i$ is the $i$ th private key used to generate that signature;
 - $i$ is the index of the participant and;
 - $A$ is a random point $G_2$ point calculated inside `derive_point_for_pok`.
 
 [TODO]
 
-$$rhs_i = ((n+1) * (i+1))^{-1}$$
-$$pok_s^{'} = pok_n + \sum_{i=0}^{n-1} -(s_i*rhs_i )$$
+```math
+rhs_i = ((n+1) * (i+1))^{-1}
+```
+$$
+pok_s^{'} = pok_n + \sum_{i=0}^{n-1} -(s_i*rhs_i )
+$$
 
 In rust:
 
