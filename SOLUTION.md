@@ -34,7 +34,9 @@ To support the rogue key, a corresponding PoK is needed. We can calculate it fro
 
 Let's recall that the $i$ th signature is:
 
-$$s_i=A*sk_i*(i+1)$$
+```math
+s_i=A*sk_i*(i+1)
+```
 
 Where:
 
