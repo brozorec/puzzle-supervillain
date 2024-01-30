@@ -32,27 +32,25 @@ let new_key = public_keys
 ```
 To support the rogue key, a corresponding PoK is needed. We can calculate it from the other participant's PoK's
 
-Let's recall that the $i$ th signature is:
+Let's recall that the $$i$$th signature is:
 
-```math
-s_i=A*sk_i*(i+1)
-```
+$$s_i=A*sk_i*(i+1)$$
 
 Where:
 
-- $s_i$  is the $i$ th signature;
-- $sk_i$ is the $i$ th private key used to generate that signature;
-- $i$ is the index of the participant and;
-- $A$ is a random point $G_2$ point calculated inside `derive_point_for_pok`.
+- $$s_i$$  is the $$i$$th signature;
+- $$sk_i$$ is the $$i$$th private key used to generate that signature;
+- $$i$$ is the index of the participant and;
+- $$A$$ is a random point $$G_2$$ point calculated inside `derive_point_for_pok`.
 
-[TODO]
+The goal is to forge signatures for all public keys that "sign" the same message. That's why we need to cancel out the individual indices (by multiplying with the inverse of $$i$$) and then multiply by $$n$$ that's `new_key_index`. By doing so, we obtain signatures for the same message $$n$$ from different public keys for which we don't know the corresponding secret keys.
 
-```math
-rhs_i = ((n+1) * (i+1))^{-1}
-```
-$$
-pok_s^{'} = pok_n + \sum_{i=0}^{n-1} -(s_i*rhs_i )
-$$
+$$rhs_i = ((n+1) * (i+1))^{-1}$$
+
+Then, we aggregate the signatures $$pok_s^{'}$$ in the same way we did for $$pk^{'}$$:
+
+
+$$pok_s^{'} = pok_n + \sum_{i=0}^{n-1} -(s_i*rhs_i )$$
 
 In rust:
 
@@ -68,7 +66,7 @@ let new_proof = public_keys
     .into_affine();
 ```
 
-Here, `my_proof` is the proof of knowledge $pok_n$ for the attacker's key $sk_n$. `new_proof` is the rogue proof $pok_n^{'}$.
+Here, `my_proof` is the proof of knowledge $$pok_n$$ for the attacker's key $$sk_n$$ while `new_proof` is the rogue proof $$pok_n^{'}$$.
 
 With the forged public key and corresponding proof of knowledge, we can pass the first validation.
 
@@ -81,13 +79,13 @@ In BLS aggregated signature validation, we can simply add up all the points for 
 $$e(pk_{agg}, H(m)) = e(sig_{agg}, G_2)$$
 
 Where:
-- $e$ is a pairing function;
-- $H$ is a hash-to-curve function;
-- $m$ is our arbitrary message.
+- $$e$$ is a pairing function;
+- $$H$$ is a hash-to-curve function;
+- $$m$$ is our arbitrary message.
 
-Which means the aggregated public keys $pk_{agg}$ we simple pass our forged public key $pk^{'}$, to be added with the other participants.
+Which means the aggregated public keys $$pk_{agg}$$ we simple pass our forged public key $$pk^{'}$$, to be added with the other participants.
 
-For the aggregated signature, we can forge a signature using the same technique of the forged PoK: subtract the aggregate signatures from our signature of the message $m$,  $sig_n = sk_n * H(m)$:
+For the aggregated signature, we can forge a signature using the same technique of the forged PoK: subtract the aggregate signatures from our signature of the message $$m$$,  $$sig_n = sk_n * H(m)$$:
 
 $$
 sig_n^{'} = sig_n + \sum_{i=0}^{n-1}-sig_ i
